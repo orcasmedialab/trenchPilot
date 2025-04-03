@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drone Pilot Prototype - Refactored</title>
+    <!-- Link the external CSS file -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Blocker screen / Game Over Screen -->
+    <div id="blocker">
+        <div id="instructions">
+            <!-- Initial instructions set by JS -->
+        </div>
+        <button id="resetButton">Play Again?</button>
+    </div>
+
+    <!-- Main Game Info (Top center) -->
+    <div id="objectiveInfo">Objective: Locate and Destroy Underground Bunker</div>
+    <div id="crosshair"></div>
+
+    <!-- Heads-Up Display (HUD) -->
+    <div id="hud-battery" class="hud-element">BAT: 100%</div>
+    <div id="hud-speed" class="hud-element">SPD: 0.0 m/s</div>
+    <div id="hud-altitude" class="hud-element">ALT: 0.0 m</div>
+    <div id="hud-health" class="hud-element">HP: 100%</div> <!-- Changed from DMG -->
+    <div id="hud-level" class="hud-element">LVL: 1</div>
+    <div id="waypoint" class="waypoint-indicator"></div> <!-- Waypoint Element -->
+
+    <!-- Import Three.js -->
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.159.0/build/three.module.js" } }
+    </script>
+    <!-- Load the main JavaScript module -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
