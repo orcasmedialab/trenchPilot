@@ -1,10 +1,10 @@
-# Trench Pilot - Drone Game Prototype
+# Trench Pilot - 3D Drone Flight Sim and Combat Game
 
-This project is a 3D drone piloting game prototype built using JavaScript and the Three.js library.
+This project is a 3D drone piloting game built using JavaScript and the Three.js library. Game runs in browser.
 
 ## Game Concept
 
-Players control a drone navigating a 3D environment filled with obstacles. The primary goal is to locate and destroy a target bunker while managing the drone's battery life and health.
+Player controld a drone while navigating a 3D environment filled with obstacles. The primary goal is to locate and destroy a target bunker while managing the drone's battery life and health.
 
 ## Current Features
 
@@ -58,3 +58,24 @@ Players control a drone navigating a 3D environment filled with obstacles. The p
     *   `ui.js`: Handles HUD updates, blocker screens, pointer lock, waypoint.
     *   `config.js`: Central configuration values (speeds, rates, damage, etc.).
 *   **Assets:** Basic textures for ground and obstacles are located in the `textures/` directory.
+
+## ToDo
+
+*   Ensure that random obstacles cause damage
+*   Tilt camera when strafing to mimic realistic drone movement
+*   Add sounds and maybe music
+*   Player should activate one-time-use explosive when in proximity of target
+*   Animate explosions
+*   Player spawns out of an underground base
+*   Move Descend to shift key. Easier to press with pinky
+*   Update all comments in code to explain line rather than changes
+*   Target bunker sometimes repeatedly spawns in the same place
+*   README is too verbose. Should talk more about gameplay and less about irrelevant specifics (i.e. "click to play")
+
+*   **Eventually:**
+    *   Multiplayer component
+    *   Tutorial introduction (level zero)
+    *   Level difficulty progression
+    *   Make all the models prettier
+    *   Put more stuff all around the map. Make it feel more "cluttered" and realistic
+    *   Missions to attack moving targets (truck envoys)
