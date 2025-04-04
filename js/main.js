@@ -58,13 +58,13 @@ function animate() {
         explosionTimer -= SceneSetup.clock.getDelta(); // Use clock delta for timer
         if (explosionTimer <= 0) {
             isExploding = false;
+            // UI screen is shown *before* the timer starts for 'lose',
+            // and *after* the timer finishes for 'win'.
             if (detonationResult === 'win') {
-                // Prepare for next level (state already updated in handleDetonation)
-                 UI.showLevelCompleteScreen(GameState.getLevel()); // Show prompt
-            } else if (detonationResult === 'lose') {
-                UI.showGameOverScreen("Drone Destroyed!"); // Or "Detonation Failed!"
+                 UI.showLevelCompleteScreen(GameState.getLevel()); // Show prompt after delay
             }
-            detonationResult = null;
+            // No need to show game over screen again here for 'lose'
+            detonationResult = null; // Reset result marker
         }
         // Keep rendering during explosion, but don't update game logic
         SceneSetup.renderer.render(SceneSetup.scene, SceneSetup.camera);
@@ -137,30 +137,31 @@ function handleDetonation() {
 
     const distanceToTarget = Player.drone.position.distanceTo(targetPos);
 
-    // Trigger explosion effect regardless
-    Target.triggerExplosionEffect(); // Make bunker disappear, etc.
+    // Common actions before checking success/failure
     Projectiles.removeAllProjectiles(); // Clear projectiles
     GameState.setGameActive(false); // Pause game logic (prevents player input/updates)
-    // if (SceneSetup.clock.running) SceneSetup.clock.stop(); // DO NOT STOP CLOCK - needed for explosion timer
     UI.showDetonatePrompt(false); // Hide prompt
-
-    isExploding = true;
+    isExploding = true; // Start explosion timer phase
     explosionTimer = Config.EXPLOSION_DURATION;
 
     if (distanceToTarget <= Config.DETONATION_RADIUS) {
-        // SUCCESS! Prepare for next level state update
+        // SUCCESS!
         console.log("Detonation successful!");
+        Target.triggerExplosionEffect(); // Make bunker disappear only on success
         detonationResult = 'win';
+        // Prepare state for next level
         GameState.increaseLevel();
         Player.resetPlayer(); // Reset position/rotation immediately
         GameState.resetBattery(); // Full battery for next level
         GameState.resetHealth(); // Full health for next level
-        // UI prompt shown after explosion timer finishes
+        // Level complete UI shown after explosion timer finishes
     } else {
-        // FAILURE! Game Over state update
+        // FAILURE!
         console.log("Detonation failed - too far!");
         detonationResult = 'lose';
-        // Game over screen shown after explosion timer finishes
+        // Show game over screen immediately
+        UI.showGameOverScreen("Drone Destroyed!");
+        // Explosion timer still runs (drone explodes), but UI is already game over
     }
 }
 
