@@ -37,3 +37,7 @@ export const TARGET_FIRE_RATE = 0.2; // Even faster fire rate (20 shots/sec)
 export const ENEMY_PROJECTILE_SPEED = 50.0; // 10x faster projectile speed
 export const ENEMY_PROJECTILE_LIFESPAN = 1.0; // Drastically reduced lifespan due to extreme speed
 export const ENEMY_PROJECTILE_DAMAGE = 15.0; // 4x damage
+
+// Detonation
+export const DETONATION_RADIUS = 15.0; // Meters within which detonation is successful
+export const EXPLOSION_DURATION = 1.5; // Seconds the explosion effect lasts

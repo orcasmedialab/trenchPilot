@@ -15,18 +15,22 @@ const altitudeElement = document.getElementById('hud-altitude');
 const healthElement = document.getElementById('hud-health'); // Renamed from damageElement
 const levelElement = document.getElementById('hud-level'); // New element
 const waypointElement = document.getElementById('waypoint'); // Restore // Waypoint element
+const detonatePromptElement = document.getElementById('detonate-prompt'); // Detonation prompt
 
 let onResetCallback = null; // Function to call when reset is clicked
+let onDetonateCallback = null; // Function to call when detonation is triggered
 
 // Helper vectors for waypoint calculation
 const targetScreenPos = new THREE.Vector3(); // Restore
 const cameraForward = new THREE.Vector3(); // Restore
 const directionToTarget = new THREE.Vector3(); // Restore
 
-export function setupUI(resetCallback) {
+export function setupUI(resetCallback, detonateCallback) { // Added detonateCallback
     onResetCallback = resetCallback;
+    onDetonateCallback = detonateCallback; // Store the callback
     setupPointerLock();
     setupButtonListeners();
+    setupMouseListeners(); // Add separate mouse listener setup
     showStartScreen(); // Initial state
 }
 
@@ -37,6 +41,7 @@ export function showStartScreen() {
     // Use a static message initially, level will be updated when game starts
     objectiveInfo.textContent = "Objective: Destroy Bunker";
     waypointElement.style.display = 'none'; // Restore // Hide waypoint initially
+    detonatePromptElement.style.display = 'none'; // Hide detonate prompt initially
 }
 
 // New function for level complete screen
@@ -49,6 +54,7 @@ export function showLevelCompleteScreen(nextLevel) {
     instructions.innerHTML = `Level ${nextLevel - 1} Complete!<br>Click to Start Level ${nextLevel}`;
     objectiveInfo.textContent = "Prepare for Next Level";
     waypointElement.style.display = 'none'; // Restore // Hide waypoint
+    detonatePromptElement.style.display = 'none'; // Hide detonate prompt
 
     // Attempt to exit pointer lock if it was active
     document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock;
@@ -65,6 +71,7 @@ export function showGameOverScreen(message) {
     instructions.innerHTML = message;
     objectiveInfo.textContent = "Mission Status";
     waypointElement.style.display = 'none'; // Restore // Hide waypoint
+    detonatePromptElement.style.display = 'none'; // Hide detonate prompt
 
     // Attempt to exit pointer lock
     document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock;
@@ -124,9 +131,11 @@ function onPointerLockChange() {
             GameState.setGameActive(true);
             if (!clock.running) clock.start(); // Start/resume clock
         }
-         document.addEventListener('mousemove', onMouseMove, false); // Always listen when locked
+         document.addEventListener('mousemove', onMouseMove, false); // Listen for look
+         // Mouse down listener is now handled separately in setupMouseListeners
     } else {
         // Unlocked
+        // document.removeEventListener('mousedown', onMouseDown, false); // Remove detonation listener
         const isGameOver = resetButton.style.display === 'block'; // Check again in case state changed
         const isLevelComplete = instructions.innerHTML.includes("Level Complete");
 
@@ -165,6 +174,29 @@ function setupButtonListeners() {
         }
     });
 }
+
+// Separate listener setup for mouse events (click/detonation)
+function setupMouseListeners() {
+    document.body.addEventListener('mousedown', (event) => {
+        // Check if pointer is locked and left button is clicked (button 0)
+        const isPointerLocked = document.pointerLockElement === document.body || document.mozPointerLockElement === document.body;
+        if (isPointerLocked && event.button === 0 && onDetonateCallback) {
+            onDetonateCallback(); // Call the main detonation handler
+        }
+    });
+}
+
+
+// Function to show/hide the detonation prompt
+export function showDetonatePrompt(show) {
+    if (show) {
+        detonatePromptElement.textContent = "[ CLICK TO DETONATE ]";
+        detonatePromptElement.style.display = 'block';
+    } else {
+        detonatePromptElement.style.display = 'none';
+    }
+}
+
 
 // Need access to camera and target position for waypoint
 import { camera } from './sceneSetup.js'; // Restore

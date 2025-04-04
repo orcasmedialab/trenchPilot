@@ -73,13 +73,15 @@ Player controld a drone while navigating a 3D environment filled with obstacles.
 *   Target bunker sometimes repeatedly spawns in the same place
 *   README is too verbose. Should talk more about gameplay and less about irrelevant specifics (i.e. "click to play")
 *   Clean up lines of code
+*   Add flags to bunkers
+*   Create view model of player's drone
 
 *   **Eventually:**
     *   Multiplayer component
     *   Tutorial introduction (level zero)
     *   Level difficulty progression
     *   Make all the models significantly better and more detailed
-    *   Add random static.
+    *   Add random static attacks
     *   Put more stuff all around the map. Make it feel more "cluttered" and realistic
     *   Make all models look better
     *   Make HUD art better

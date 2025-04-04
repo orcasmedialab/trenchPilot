@@ -30,3 +30,19 @@ canvas { display: block; }
     pointer-events: none;
     display: none; /* Initially hidden, shown by JS */
 }
+
+/* Detonation Prompt */
+.detonate-prompt {
+    position: absolute;
+    bottom: 15%; /* Position above bottom HUD */
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255, 69, 0, 0.9); /* Orange-Red */
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.8em;
+    font-weight: bold;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    z-index: 103; /* Above waypoint */
+    pointer-events: none;
+    display: none; /* Initially hidden */
+}

@@ -124,3 +124,11 @@ export function getTargetPosition() {
     }
     return null; // Return null if bunker doesn't exist
 }
+
+// Simple explosion effect - hides the bunker group
+export function triggerExplosionEffect() {
+    if (bunkerGroup) {
+        bunkerGroup.visible = false; // Hide the entire bunker
+    }
+    // TODO: Add a more visually appealing explosion effect (particles, light flash)
+}

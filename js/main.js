@@ -8,6 +8,12 @@ import * as Target from './target.js';
 import * as Projectiles from './projectiles.js'; // Import Projectiles
 import * as UI from './ui.js';
 import * as GameState from './gameState.js';
+import * as Config from './config.js'; // Import Config for detonation radius
+
+// --- Game State Variables ---
+let isExploding = false; // Is the explosion animation playing?
+let explosionTimer = 0; // Timer for explosion duration
+let detonationResult = null; // 'win' or 'lose' after detonation
 
 // --- Initialization ---
 function init() {
@@ -18,7 +24,7 @@ function init() {
     Environment.createObstacles();
     Target.createBunker(); // Creates initial target
     Player.setupPlayer();
-    UI.setupUI(resetGame); // Pass resetGame function to UI module
+    UI.setupUI(resetGame, handleDetonation); // Pass resetGame AND handleDetonation callbacks
 
     resetGame(); // Set initial game state (shows start screen)
     animate();   // Start the game loop
@@ -31,6 +37,9 @@ function resetGame() {
     Player.resetPlayer();
     Target.resetTarget(); // Recreates bunker, resets materials/beacon, cooldown
     Projectiles.removeAllProjectiles(); // Clear any leftover projectiles
+    isExploding = false; // Reset explosion state
+    explosionTimer = 0;
+    detonationResult = null;
     UI.showStartScreen(); // Set the UI to the initial state
 }
 
@@ -43,20 +52,50 @@ function onPlayerHit(damageAmount) {
 // --- Game Loop ---
 function animate() {
     requestAnimationFrame(animate);
+
+    // Handle explosion animation phase
+    if (isExploding) {
+        explosionTimer -= SceneSetup.clock.getDelta(); // Use clock delta for timer
+        if (explosionTimer <= 0) {
+            isExploding = false;
+            if (detonationResult === 'win') {
+                // Prepare for next level (state already updated in handleDetonation)
+                 UI.showLevelCompleteScreen(GameState.getLevel()); // Show prompt
+            } else if (detonationResult === 'lose') {
+                UI.showGameOverScreen("Drone Destroyed!"); // Or "Detonation Failed!"
+            }
+            detonationResult = null;
+        }
+        // Keep rendering during explosion, but don't update game logic
+        SceneSetup.renderer.render(SceneSetup.scene, SceneSetup.camera);
+        return; // Skip normal game loop updates
+    }
+
+    // Normal game loop
     const deltaTime = SceneSetup.clock.getDelta();
     const elapsedTime = SceneSetup.clock.elapsedTime;
 
     if (GameState.isGameActive()) {
         // Player Updates
-        Player.handlePlayerMovement(deltaTime); // Handles movement AND battery drain
+        Player.handlePlayerMovement(deltaTime); // Handles movement, roll, battery drain, ground damage
 
         // Camera Update (match player drone)
         SceneSetup.camera.position.copy(Player.drone.position);
         SceneSetup.camera.quaternion.copy(Player.drone.quaternion);
 
         // Target Updates
-        Target.updateBeacon(elapsedTime);
-        Target.updateTarget(deltaTime, Player.drone.position); // Bunker firing logic
+        const targetPos = Target.getTargetPosition(); // Get target position once
+        if (targetPos) {
+            Target.updateBeacon(elapsedTime);
+            Target.updateTarget(deltaTime, Player.drone.position); // Bunker firing logic
+
+            // Check distance for detonation prompt
+            const distanceToTarget = Player.drone.position.distanceTo(targetPos);
+            UI.showDetonatePrompt(distanceToTarget <= Config.DETONATION_RADIUS);
+        } else {
+            UI.showDetonatePrompt(false); // Hide if no target
+        }
+
 
         // Projectile Updates
         Projectiles.updateProjectiles(deltaTime, Player.drone, onPlayerHit); // Pass player object and hit callback
@@ -75,28 +114,56 @@ function animate() {
         } else if (battery <= 0) {
             UI.showGameOverScreen("Battery Depleted!");
         } else {
-            // Check for target collision (Win condition for the level)
-            if (Target.checkCollision(Player.drone.position)) {
-                Target.onTargetDestroyed(); // Visual feedback (e.g., change color)
-                GameState.setGameActive(false); // Pause game immediately
-                if (SceneSetup.clock.running) SceneSetup.clock.stop(); // Stop clock
-                Projectiles.removeAllProjectiles(); // Clear projectiles
-
-                // Prepare for next level but wait for player click
-                GameState.increaseLevel();
-                Player.resetPlayer(); // Reset position/rotation
-                GameState.resetBattery(); // Full battery for next level
-                GameState.resetHealth(); // Full health for next level
-
-                UI.showLevelCompleteScreen(GameState.getLevel()); // Show prompt
-                // Target.resetTarget() will be called when player clicks to start next level
-            }
+            // Collision check removed - replaced by manual detonation
+            /*
+            if (Target.checkCollision(Player.drone.position)) { ... }
+            */
         }
+    } else {
+        // Ensure detonate prompt is hidden when game is not active
+        UI.showDetonatePrompt(false);
     } // End if(GameState.isGameActive())
 
     // Render the scene
     SceneSetup.renderer.render(SceneSetup.scene, SceneSetup.camera);
 }
+
+// --- Detonation Handler ---
+function handleDetonation() {
+    if (!GameState.isGameActive() || isExploding) return; // Only detonate if game active and not already exploding
+
+    const targetPos = Target.getTargetPosition();
+    if (!targetPos) return; // No target to detonate near
+
+    const distanceToTarget = Player.drone.position.distanceTo(targetPos);
+
+    // Trigger explosion effect regardless
+    Target.triggerExplosionEffect(); // Make bunker disappear, etc.
+    Projectiles.removeAllProjectiles(); // Clear projectiles
+    GameState.setGameActive(false); // Pause game logic (prevents player input/updates)
+    // if (SceneSetup.clock.running) SceneSetup.clock.stop(); // DO NOT STOP CLOCK - needed for explosion timer
+    UI.showDetonatePrompt(false); // Hide prompt
+
+    isExploding = true;
+    explosionTimer = Config.EXPLOSION_DURATION;
+
+    if (distanceToTarget <= Config.DETONATION_RADIUS) {
+        // SUCCESS! Prepare for next level state update
+        console.log("Detonation successful!");
+        detonationResult = 'win';
+        GameState.increaseLevel();
+        Player.resetPlayer(); // Reset position/rotation immediately
+        GameState.resetBattery(); // Full battery for next level
+        GameState.resetHealth(); // Full health for next level
+        // UI prompt shown after explosion timer finishes
+    } else {
+        // FAILURE! Game Over state update
+        console.log("Detonation failed - too far!");
+        detonationResult = 'lose';
+        // Game over screen shown after explosion timer finishes
+    }
+}
+
 
 // --- Start ---
 init();
