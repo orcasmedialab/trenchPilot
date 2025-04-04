@@ -73,6 +73,8 @@ export function showGameOverScreen(message) {
 
 // Need access to Target module to reset it when starting next level
 import { resetTarget } from './target.js'; // Restore this import
+// Need access to Environment module to recreate obstacles
+import { createObstacles } from './environment.js';
 
 function setupPointerLock() {
     blocker.addEventListener('click', () => {
@@ -113,7 +115,8 @@ function onPointerLockChange() {
             objectiveInfo.textContent = `Objective: Destroy Bunker (Level ${GameState.getLevel()})`;
 
             if (wasLevelComplete) {
-                // If we just completed a level, reset the target now
+                // If we just completed a level, reset the target and obstacles now
+                createObstacles(); // Regenerate obstacles
                 resetTarget(); // Restore this call
                 // Objective text already updated above
             }

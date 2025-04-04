@@ -7,6 +7,8 @@ export const MOVE_SPEED = 0.6; // Base horizontal speed multiplier
 export const VERTICAL_SPEED_BASE = 0.15; // Base downward speed multiplier
 export const VERTICAL_LIFT_POWER = 0.4; // Upward speed multiplier
 export const MIN_ALTITUDE = 0.5;
+export const MAX_ROLL_ANGLE = Math.PI / 12; // Max tilt angle (e.g., 15 degrees)
+export const ROLL_INTERPOLATION_SPEED = 5.0; // How quickly the drone rolls/unrolls
 export const GROUND_DAMAGE_THRESHOLD = 0.6; // Altitude below which ground damage occurs
 export const GROUND_DAMAGE_RATE = 150.0; // Kill in < 1 sec (100 health / 150 rate = 0.66s)
 

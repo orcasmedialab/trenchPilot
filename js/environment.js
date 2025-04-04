@@ -33,8 +33,16 @@ export function createGround() {
 
 export function createObstacles() {
     // Clear existing obstacles
-    obstacles.forEach(obs => scene.remove(obs));
+    obstacles.forEach(obs => {
+        scene.remove(obs);
+        // Optional: Dispose geometry/material if needed
+        // if (obs.geometry) obs.geometry.dispose();
+        // if (obs.material) obs.material.dispose();
+    });
     obstacles = []; // Reset array
+
+    // "Warm up" Math.random() before the loop
+    Math.random(); Math.random(); Math.random(); Math.random(); Math.random();
 
     for (let i = 0; i < Config.NUM_OBSTACLES; i++) {
         const geo = obstacleGeos[Math.floor(Math.random() * obstacleGeos.length)];

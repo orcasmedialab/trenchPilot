@@ -61,9 +61,10 @@ Player controld a drone while navigating a 3D environment filled with obstacles.
 
 ## ToDo
 
+*   Bunker still doesn't reset color (double check)
+*   Point system
 *   Ensure that random obstacles cause damage
-*   Tilt camera when strafing to mimic realistic drone movement
-*   Add sounds and maybe music
+*   Add sounds and maybe music. Zelensky voices.
 *   Player should activate one-time-use explosive when in proximity of target
 *   Animate explosions
 *   Player spawns out of an underground base
@@ -71,11 +72,15 @@ Player controld a drone while navigating a 3D environment filled with obstacles.
 *   Update all comments in code to explain line rather than changes
 *   Target bunker sometimes repeatedly spawns in the same place
 *   README is too verbose. Should talk more about gameplay and less about irrelevant specifics (i.e. "click to play")
+*   Clean up lines of code
 
 *   **Eventually:**
     *   Multiplayer component
     *   Tutorial introduction (level zero)
     *   Level difficulty progression
-    *   Make all the models prettier
+    *   Make all the models significantly better and more detailed
+    *   Add random static.
     *   Put more stuff all around the map. Make it feel more "cluttered" and realistic
+    *   Make all models look better
+    *   Make HUD art better
     *   Missions to attack moving targets (truck envoys)

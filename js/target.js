@@ -15,26 +15,37 @@ const woodTex = textureLoader.load(Config.TEXTURE_PATH + 'wood_texture.jpg');
 const fireOriginOffset = new THREE.Vector3(0, 0.5, -1.5); // Where projectiles originate relative to bunker center
 
 export function createBunker() {
-    if (bunkerGroup && bunkerGroup.parent) scene.remove(bunkerGroup);
+    // Dispose old material if mesh exists
+    if (entranceMesh && entranceMesh.material) {
+        entranceMesh.material.dispose();
+    }
+    // Remove old group if exists
+    if (bunkerGroup && bunkerGroup.parent) {
+        scene.remove(bunkerGroup);
+        // Optional: Traverse and dispose geometries if needed later
+    }
+    entranceMesh = null; // Clear reference
 
     bunkerGroup = new THREE.Group();
     const rampMat = new THREE.MeshStandardMaterial({ map: concreteTex, side: THREE.DoubleSide, roughness: 0.8 });
-    const entranceMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.5 });
+    const entranceMatProperties = { color: 0x111111, roughness: 0.5 }; // Store properties
     const bermMat = new THREE.MeshStandardMaterial({ map: woodTex, roughness: 0.9 });
 
     // Ramp
     const rampGeo = new THREE.PlaneGeometry(6, 8); const ramp = new THREE.Mesh(rampGeo, rampMat); ramp.rotation.x = Math.PI / 2 + 0.8; ramp.position.y = 0.1; ramp.position.z = 3; ramp.receiveShadow = true; bunkerGroup.add(ramp);
     // Entrance
     const entranceGeo = new THREE.BoxGeometry(3, 2.5, 2);
-    // Clone the material to ensure a fresh instance each time
-    entranceMesh = new THREE.Mesh(entranceGeo, entranceMat.clone()); // Added .clone()
+    // Create a completely NEW material instance each time createBunker is called
+    entranceMesh = new THREE.Mesh(entranceGeo, new THREE.MeshStandardMaterial(entranceMatProperties)); // Use new material
     entranceMesh.position.y = -0.5; entranceMesh.position.z = -0.5; entranceMesh.castShadow = true; bunkerGroup.add(entranceMesh);
     // Berms
     const bermGeo = new THREE.BoxGeometry(1, 0.6, 1); for (let i = 0; i < 8; i++) { const berm = new THREE.Mesh(bermGeo, bermMat); berm.position.set((Math.random() - 0.5) * 6, 0.3, (Math.random() * -4) - 1.5); berm.rotation.y = Math.random() * Math.PI; berm.castShadow = true; berm.receiveShadow = true; bunkerGroup.add(berm); }
     // Beacon
     const beaconGeo = new THREE.SphereGeometry(0.3, 8, 8); const beaconMat = new THREE.MeshBasicMaterial({ color: 0xff0000 }); beaconLightMesh = new THREE.Mesh(beaconGeo, beaconMat); beaconLightMesh.position.set(0, 1.5, -1.0); bunkerGroup.add(beaconLightMesh);
 
-    // Positioning
+    // Positioning - "Warm up" Math.random()
+    Math.random(); Math.random(); Math.random(); // Discard a few values
+
     const randomDist = Math.random() * (Config.TARGET_MAX_SPAWN_DIST - Config.TARGET_MIN_SPAWN_DIST) + Config.TARGET_MIN_SPAWN_DIST;
     const randomAngle = Math.random() * Math.PI * 2;
     bunkerGroup.position.set(
